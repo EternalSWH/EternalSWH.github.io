@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <script type="text/javascript">
+        window.onload = function () {
+            var mapWidth = 44;
+            var mapHeight = 24;
+            var box = document.getElementById("box");
+
+            for (var mapi = 0; mapi < mapHeight; mapi++) {                               //创建地图
+                for (var mapj = 0; mapj < mapWidth; mapj++) {
+                    var div = document.createElement("div");
+                    if (mapi == 0 || mapj == 0 || mapi == mapHeight - 1 || mapj == mapWidth - 1) {
+                        div.className = "wall";
+                    }
+                    else {
+                        div.className = "blank";
+                    }
+                    div.id = "r" + mapi + "_" + mapj;
+                    box.appendChild(div);
+                }
+                var div = document.createElement("br");
+                box.appendChild(div);
+            }
+            
+            var len = 1;
+            var stri = 0;
+            var strj = 0;
+
+            function getstr(str) {
+
+                stri = str.match(/r(\S*)_/)[1];
+
+                strj = str.match(/_(\S*)/)[1];
+
+            }
+            var headi;
+            var headj;
+            function snakehead() {
+                headi = parseInt(Math.random() * (mapHeight - 3) + 1);
+                headj = parseInt(Math.random() * (mapWidth - 3) + 1);         //蛇头坐标
+                var div = document.getElementById("r" + headi + "_" + headj);
+                div.className = "head";                                             //生成蛇头
+            }
+
+            var snake = [];                                                    //存放蛇身蛇尾
+
+            var foodi = 0;                                                    //食物坐标
+            var foodj = 0;
+
+            snakehead();
+            food();
+            
+            var flag3 = 0;
+            function food() {                                                 //生成食物
+                var flag = 0;
+                while (flag == 0) {
+                    flag = 1;
+                    foodi = parseInt(Math.random() * (mapHeight - 3) + 1);
+                    foodj = parseInt(Math.random() * (mapWidth - 3) + 1);
+                    if (foodi == headi && foodj == headj) {                               //如果与蛇重合则重新生成
+                        flag = 0;
+                    }
+                    else {
+                        for (var i = 0; i < snake.length; i++) {
+                            getstr(snake[i].id);
+                            if (foodi == stri && foodj == strj) {
+                                flag = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+                var div = document.getElementById("r" + foodi + "_" + foodj);
+                div.className = "food";
+            }
+
+            var length = document.getElementById("length");
+
+            function init() {
+                for (var i = 1; i < mapHeight - 1; i++) {
+                    for (var j = 1; j < mapWidth - 1; j++) {
+                        var div = document.getElementById("r" + i + "_" + j);
+                        div.className = "blank";
+                    }
+                }
+                snake = [];
+                snakehead();
+                len = 1;
+                length.innerHTML = "长度:" + len;
+                food();
+            }
+
+            
+            function move(mapi, mapj) {                                            //移动函数
+                var next = document.getElementById("r" + mapi + "_" + mapj);
+                var head = document.getElementById("r" + headi + "_" + headj);
+                if (next.className == "wall" || next.className == "body") {
+                    alert("游戏结束");
+                    init();
+                }
+                else {
+                    next.className = "head";
+                    headi = mapi;
+                    headj = mapj                                                    //更新蛇头
+                    head.className = "blank";
+                    if (snake.length != 0) {
+                        head.className = "body";                                    //旧head变成body，并放进数组头部
+                        snake.unshift(head);
+                        if (!(mapi == foodi && mapj == foodj)) {                   //数组长度不为0并且没吃到食物，则删除蛇尾
+                            var tail = snake.pop();
+                            tail.className = "blank";
+                        }
+                        else {
+                            food();                                                //吃到食物则重新生成食物
+                            len++;
+                            length.innerHTML = "长度:" + len;
+                        }
+                    }
+                    else if (snake.length == 0 && mapi == foodi && mapj == foodj) {  //数组长度为0且吃到食物则把旧head变成body放进数组头部即可
+                        head.className = "body";
+                        snake.unshift(head);
+                        len++;
+                        length.innerHTML = "长度:" + len;
+                        food();
+                    }
+                }
+            }
+
+            //手动控制
+            document.onkeydown = function (event) {          //w87 s83 a65 d68
+                event = event || window.event;
+                switch (event.keyCode) {
+                    case 87:
+                        move(headi - 1, headj);;         //参数为蛇头将要前进的坐标
+                        break;
+                    case 83:
+                        move(headi + 1, headj);
+                        break;
+                    case 65:
+                        move(headi, headj - 1);
+                        break;
+                    case 68:
+                        move(headi, headj + 1);
+                        break;
+                }
+            };
+
+            //自动游戏   以下为A*算法
+            var obj = [];
+            for (var i = 0; i < mapHeight; i++) {          //创建二维数组
+
+                obj[i] = [];                                
+
+                for (var j = 0; j < mapWidth; j++) {
+
+                    obj[i][j] = 0;
+
+                }
+
+            }
+
+            function Plance(x,y,h)               //初始化
+            {
+                this.parent = -1;
+
+                this.x = x;
+
+                this.y = y;
+
+                this.f = h;
+
+                this.g = 0;
+
+                this.h = h;
+
+                this.isPush = 0;
+
+            }
+
+            for (var i = 0; i < mapHeight; i++) {               //初始化，记录每个位置的信息
+                for (var j = 0; j < mapWidth; j++) {
+                    var h = (+(mapHeight - i) + +(mapWidth - j));
+                    obj[i][j] = new Plance(i, j, h);
+                }
+            }
+            var queue = [];
+
+            function getfmin(){
+                var fmin=10000;
+                var index=-1;
+                var tempobj;
+                for(var i=0;i<queue.length;i++){
+                    if(queue[i].f<fmin){
+                        fmin=queue[i].f;
+                        index=i;
+                        tempobj=queue[i];
+                    }
+                }
+                queue.splice(index,1);
+                return tempobj;
+            }
+
+            function reset() {
+                for (var i = 0; i < mapHeight; i++) {
+                    for (var j = 0; j < mapWidth; j++) {
+                        obj[i][j].f = obj[i][j].h;
+                        obj[i][j].isPush = 0;
+                        obj[i][j].g = 0;
+                        obj[i][j].parent = -1;
+                    }
+                }
+                queue = [];
+            }
+            var flag1 = 0;
+            var timer = 0;
+            function search() {
+                flag1 = 0;
+                queue.push(obj[headi][headj]);
+                var flag = 0;
+                while (queue.length != 0) {
+                    var fmin = getfmin();
+                    var i = fmin.x;
+                    var j = fmin.y;
+                    if (i == foodi && j == foodj) {
+                        flag = 1;
+                        break;
+                    }
+                    var temp;
+                    var temp1 = document.getElementById("r" + (i - 1) + "_" + j).className;
+                    var temp2 = document.getElementById("r" + (i + 1) + "_" + j).className;
+                    var temp3 = document.getElementById("r" + i + "_" + (j - 1)).className;
+                    var temp4 = document.getElementById("r" + i + "_" + (j + 1)).className;
+                    if (obj[i - 1][j].isPush == 0 && (temp1 == "blank" || temp1 == "food")) {
+                        temp = obj[i - 1][j];
+                        temp.g = fmin.g + 1;
+                        temp.f = temp.g + temp.h;
+                        temp.parent = fmin;
+                        temp.isPush = 1;
+                        queue.push(temp);
+                    }
+                    if (obj[i + 1][j].isPush == 0 && (temp2 == "blank") || temp2 == "food") {
+                        temp = obj[i + 1][j];
+                        temp.g = fmin.g + 1;
+                        temp.f = temp.g + temp.h;
+                        temp.parent = fmin;
+                        temp.isPush = 1;
+                        queue.push(temp);
+                    }
+                    if (obj[i][j - 1].isPush == 0 && (temp3 == "blank" || temp3 == "food")) {
+                        temp = obj[i][j - 1];
+                        temp.g = fmin.g + 1;
+                        temp.f = temp.g + temp.h;
+                        temp.parent = fmin;
+                        temp.isPush = 1;
+                        queue.push(temp);
+                    }
+                    if (obj[i][j + 1].isPush == 0 && (temp4 == "blank" || temp4 == "food")) {
+                        temp = obj[i][j + 1];
+                        temp.g = fmin.g + 1;
+                        temp.f = temp.g + temp.h;
+                        temp.parent = fmin;
+                        temp.isPush = 1;
+                        queue.push(temp);
+                    }
+                }
+                
+                if (flag == 0) {
+                    alert("无法找到可行路径，请手动操作");
+                    flag1 = 1;
+                    var btn = document.getElementById("btn");
+                    btn.innerHTML = "自动游戏";
+                    clearInterval(timer);
+                    reset();
+                }
+                else {
+                    var route = [];
+                    while (fmin.parent != -1) {
+                        route.push(fmin);
+                        fmin = fmin.parent;
+                    }
+                    timer = setInterval(function () {
+                        var t = route.pop();                        
+                        move(t.x, t.y);
+                        if (route.length == 0 || flag1 == 1) {
+                            clearInterval(timer);
+                            reset();
+                            if (flag1 != 1) {
+                                search();
+                            }
+                            else {
+                                flag1 = 0;
+                            }
+                        }
+                    }, 50);
+
+                }
+            }
+
+            var btn = document.getElementById("btn");
+            btn.onclick = function () {
+                if (btn.innerHTML == "自动游戏") {
+                    btn.innerHTML = "暂停";
+                    search();
+                }
+                else {
+                    btn.innerHTML = "自动游戏";
+                    flag1 = 1;
+                }
+            };
+
+        };
+    </script>
+    <style type="text/css">
+        #box {
+            width:1100px;
+            padding: 0;
+            font-size: 0;
+            overflow: auto;
+            float:left;
+            background-image:url("image/bg.png");
+        }
+        .blank {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 0;
+        }
+        .wall {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 0;
+            background-image: url("image/wall.png");
+        }
+        .head {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 0;
+            background-image:url("image/head.png");
+        }
+        .body {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 0;
+            background-image:url("image/body.png");
+            background-color: black;
+        }
+        .food {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            margin: 0;
+            background-image:url("image/food.png")
+        }
+        #right{
+            float:left;
+        }
+        #btn{
+            margin-top:170px;
+            margin-left:50px;
+        }
+        #text{
+            margin-top:80px;
+            margin-left:50px;
+            width:60px;
+            border:1px solid red;
+        }
+        #length{
+            margin-top:20px;
+            margin-left:50px;
+            width:90px;
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div id="box">
+    </div>
+    <div id="right">
+        <div id="length">长度:1</div>
+        <div id="text">
+         <h2 style="color:red;">提示:</h2>
+        建议使用谷歌浏览器，自动游戏有bug
+        </div>
+        <button id="btn">自动游戏</button>
+    </div>
+</body>
+</html>

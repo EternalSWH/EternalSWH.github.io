@@ -1,0 +1,169 @@
+body {
+}
+    .tips{
+            width:1000px;
+            height:46px;
+            text-align:center;
+            border:1px solid red;
+            margin:0 auto;
+        }
+   *{
+            margin:0;
+            padding:0;
+        }
+        #box{
+            width:1100px;
+            height:600px;
+            background-image:url("zombies/bg.jpg");
+            margin:10px auto;
+            position:absolute;
+            overflow:hidden;
+        }
+        #plant{
+            list-style:none;
+            position:absolute;
+            left:270px;
+        }
+            #plant li {
+                float: left;
+            }
+        #plant1 {
+            width: 50px;
+            height: 70px;
+            background-image: url("zombies/plant1.png");
+        }
+        .plant1_fight{
+            width:70px;
+            height:70px;
+            background-image:url("zombies/plant1_fight.gif");
+            position:absolute;
+            pointer-events:none;
+        }
+        #none{
+        }
+        #box1{
+            width:729px;      
+            height:480px;
+            position:absolute;
+            font-size:0;
+            left:258px;
+            top:85px;
+        }
+        .square{
+            width:81px;
+            height:96px;
+            display:inline-block;
+        }
+        .mouseover{
+            width:81px;
+            height:96px;
+            display:inline-block;
+            background-image:url("zombies/light.png");
+        }
+        #plant1_cool {
+            width:50px;
+            height: 70px;
+            background-image: url("zombies/plant1_cool.png");
+        }
+         #plant2{
+            width:50px;
+            height:70px;
+            background-image:url("zombies/plant2.png");
+        }
+        .plant2_fight {
+            width: 70px;
+            height: 70px;
+            background-image: url("zombies/plant2_fight.gif");
+            position: absolute;
+            pointer-events: none;
+        }
+        #plant2_cool{
+            width:50px;
+            height:70px;
+            background-image:url("zombies/plant2_cool.png");
+        }
+        .sun{
+            width:55px;
+            height:55px;
+            background-image:url("zombies/sun.png");
+            position:absolute;
+        }
+        #bank{
+            width:78px;
+            height:87px;
+            background-image:url("zombies/bank.png");
+        }
+        #text {
+            margin-top: 60px;
+            margin-left: 12px;
+            position: absolute;
+            -moz-user-select: none;
+            user-select: none;
+        }
+        #warn{
+            width:50px;
+            height:20px;
+            position:absolute;
+            border:4px solid red;
+            top:58px;
+            left:278px;
+        }
+        .plant1_ball {
+            width:28px;
+            height:34px;
+            position:absolute;
+            background-image:url("zombies/plant1_ball.png");
+            background-position-x:-25px;
+        }
+         .zombie1_run{
+            width:88px;
+            height:124px;
+            position:absolute;
+            background-image:url("zombies/zombie1_run.gif");
+            background-position:-63px -21px;
+        }
+        .zombie1_fight {
+            width: 88px;
+            height: 124px;
+            position: absolute;
+            background-image: url("zombies/zombie1_fight.gif");
+            background-position: -63px -21px;
+        }
+        #plant3 {
+            width: 50px;
+            height: 70px;
+            background-image: url("zombies/plant3.png");
+        }
+        .plant3_fight {
+            width: 70px;
+            height: 75px;
+            background-image: url("zombies/plant3_fight.gif");
+            position: absolute;
+            pointer-events: none;
+        }
+        #plant3_cool{
+            width:50px;
+            height:70px;
+            background-image:url("zombies/plant3_cool.png");
+        }
+         .plant3_ball {
+            width:28px;
+            height:34px;
+            position:absolute;
+            background-image:url("zombies/plant1_ball.png");
+            background-position-x:-25px;
+        }
+        .zombie2_run {
+            width: 94px;
+            height: 132px;
+            position: absolute;
+            background-image: url("zombies/zombie2_run.gif");
+            background-position: -50px -21px;
+        }
+        .zombie2_fight {
+            width: 94px;
+            height: 132px;
+            position: absolute;
+            background-image: url("zombies/zombie2_fight.gif");
+            background-position: -50px -21px;        
+        }

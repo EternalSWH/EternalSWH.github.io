@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>练习</title>
+    <meta charset="utf-8" name="referrer" content="no-referrer" />
+    <style type="text/css">
+        html{
+            background-image:url("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1603425917958&di=18bb49dcb6bfa519e0535b28e6aa0441&imgtype=0&src=http%3A%2F%2Fbpic.588ku.com%2Fback_pic%2F03%2F84%2F46%2F9357cac3109828c.jpg");
+            background-size:110%;
+        }
+        .box1 {
+            text-align:center;
+            width: 200px;
+            height:431px;
+            margin: 130px auto;
+            overflow:hidden;
+            text-align: center;
+        }
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        a {
+            font-size:30px;
+            color: black;
+            text-decoration: none;
+        }
+        a:hover{
+            color:#f2156a;
+        }
+        h1{
+            margin-top:-5px;
+            margin-bottom: 40px;
+            font-size:50px;
+        }
+
+    </style>
+    <script src="jquery-1.12.4.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            var flag=1;
+            var $liuyan=$(".liuyan");
+            $liuyan.mouseover(function () {
+                if(flag==1){
+                    flag++;
+                    alert("swh练习用");
+                }
+            })
+          
+ $(".lianxi").click(function () {
+                alert("BUG确实有" +
+                    "   服务器：腾讯云" +
+                    "   练习作品" +
+                    "   有bug" +
+                    "   ？" +
+                    "   QQ：1036769965");
+            })
+        };
+    </script>
+</head>
+<body>
+    <div class="box1">
+        <h1>欢迎</h1>
+        <a href="Plane Wars.html" target="_blank">飞机大战</a><br />
+        <a href="plantszombies.html" target="_blank">植物大战僵尸</a><br />
+        <a href="snake.html" target="_blank">贪吃蛇</a><br />
+        <a href="maze.html" target="_blank">迷宫</a><br />
+        <a href="hh.html" target="_blank">冒险岛</a><br />
+        <a class="lianxi" href="javascript:;">简介</a><br />
+        <a class="liuyan" href="comment.html" target="_blank">留言</a><br />
+        
+    </div>
+</body>
+</html>

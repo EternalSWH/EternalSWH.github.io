@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>迷宫</title>
+
+
+
+    <script type="text/javascript">
+
+        window.onload = function () {
+
+            var xMax = 19, yMax = 32;                 //19 //32  //地图大小
+
+            var xBegin = 0, yBegin = -1, xEnd = 0, yEnd = -1;    //起点和终点
+
+            var count = 0;
+
+            var press = 0;
+
+            var flag = 0;
+
+            var flag1 = 0;
+
+            var flag2 = 0;
+
+            var flag3 = 0;
+
+            var flag4 = 0;
+
+
+
+            var Obj = [];                                   //存放每个位置的信息
+
+            for (var i = 0; i <= xMax + 1; i++) {
+
+                Obj[i] = [];                                //每行有10列
+
+                for (var j = 0; j <= yMax + 1; j++) {
+
+                    Obj[i][j] = 0;
+
+                }
+
+            }
+
+
+
+            var Queue = new Array();                       //存放待比较的对象
+
+            var Route = new Array();                       //存放路径
+
+
+
+            var stri;
+
+            var strj;                                     //坐标
+
+
+
+            function Plance(x, y, f, g, h, isPush)    //初始化
+
+            {
+
+                this.parent = -1;
+
+                this.x = x;
+
+                this.y = y;
+
+                this.f = f;
+
+                this.g = g;
+
+                this.h = h;
+
+                this.isPush = isPush;
+
+                this.ispass = true;
+
+            }
+
+            for (var i = 1; i <= xMax; i++) {
+
+                for (var j = 1; j <= yMax; j++) {
+
+                    var h = (+(xMax - i) + +(yMax - j));
+
+                    Obj[i][j] = new Plance(i, j, 0 + h, 0, h, 0);     //创建对象
+
+
+
+                }
+
+            }
+
+
+
+
+
+            function getstr(str) {
+
+                stri = str.match(/r(\S*)_/)[1];
+
+                strj = str.match(/_(\S*)/)[1];
+
+            }
+
+
+
+
+
+            function show() {
+
+                var max = document.getElementById("max");
+
+                for (var i = 0; i <= xMax + 1 ; i++) {
+
+                    for (var j = 0; j <= yMax + 1 ; j++) {
+
+                        if (i == 0 || j == 0 || j == yMax + 1 || i == xMax + 1) {
+
+                            var span = document.createElement("div");
+
+                            span.className = "wall";
+
+                            span.id = "r" + i + "_" + j;
+
+                            max.appendChild(span);
+
+                        }
+
+                        else {
+
+                            var span = document.createElement("span");
+
+                            span.className = "blank";
+
+                            span.id = "r" + i + "_" + j;
+
+                            max.appendChild(span);
+
+                            span.onclick = function () {
+
+                                getstr(this.id);
+
+                                if (count < 2) {
+
+                                    if (count == 0) {
+
+                                        this.className = "start";
+
+                                        xBegin = +stri;
+
+                                        yBegin = +strj;
+
+                                        count++;
+
+                                    }
+
+                                    else {
+
+                                        if ((!(xBegin == stri && yBegin == strj) || flag1 == 1)) {
+
+                                            if (flag1 == 1 && flag2 != 3) {
+
+                                                xBegin = xEnd;
+
+                                                yBegin = yEnd;
+
+                                            }
+
+                                            if (Obj[stri][strj].ispass == false) {
+
+                                                Obj[stri][strj].ispass = true;
+
+                                            }
+
+                                            if (!(stri == xBegin && strj == yBegin)) {
+
+                                                this.className = "end";
+
+                                                xEnd = +stri;
+
+                                                yEnd = +strj;
+
+                                                count++;
+
+                                                press = 1;
+
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
+                                else if (!(xBegin == stri && yBegin == strj || xEnd == stri && yEnd == strj) && press == 1) {
+
+                                    if (Obj[stri][strj].ispass == true) {
+
+                                        this.className = "wall";
+
+                                        Obj[stri][strj].ispass = false;
+
+                                    }
+
+                                    else {
+
+                                        this.className = "blank";
+
+                                        Obj[stri][strj].ispass = true;
+
+                                    }
+
+
+
+                                }
+
+
+
+                            }
+
+
+
+                        }
+
+                    }
+
+                    var span = document.createElement("br");
+
+                    max.appendChild(span);
+
+                }
+
+            }
+
+            show();
+
+            function init() {
+
+                Queue = [];
+
+                for (var i = 1; i <= xMax; i++) {
+
+                    for (var j = 1; j <= yMax; j++) {
+
+                        Obj[i][j].f = 0;
+
+                        Obj[i][j].g = 0;
+
+                        Obj[i][j].isPush = 0;
+
+                        Obj[i][j].parent = -1;
+
+                    }
+
+                }
+
+            }
+
+
+
+            var start = document.getElementById("Start");
+
+
+
+            var length;
+
+            var head;
+
+
+
+            start.onclick = function () {
+
+                if ((!(xBegin == 0 || xEnd == 0) && press == 1)){
+
+                    init();
+
+                    press++;
+
+                    Queue.push(Obj[xBegin][yBegin]);                //把起点放进去
+
+                    Obj[xBegin][yBegin].isPush = 1;
+
+                    flag = 0;
+
+                    while (Queue.length != 0) {
+
+
+
+                        var fMin = 10000;
+
+                        var objNow;
+
+                        var iNow;
+
+                        for (var i = 0; i < Queue.length; i++)         //找出f最小的点
+
+                        {
+
+                            if (Queue[i].f < fMin) {
+
+                                fMin = Queue[i].f;
+
+                                iNow = i;
+
+                                objNow = Queue[i];
+
+                            }
+
+                        }
+
+                        if (Queue[iNow].x == xEnd && Queue[iNow].y == yEnd)      //到达终点
+
+                        {
+
+                            flag = 1;
+
+                            break;
+
+                        }
+
+                        Queue.splice(iNow, 1);
+
+                        var xNow = objNow.x;
+
+                        var yNow = objNow.y;
+
+                        if (Obj[xNow - 1][yNow] != 0 && Obj[xNow - 1][yNow].ispass == true && Obj[xNow - 1][yNow].isPush == 0) {
+
+                            Obj[xNow - 1][yNow].isPush = 1;
+
+                            Obj[xNow - 1][yNow].g = objNow.g + 1;
+
+                            Obj[xNow - 1][yNow].f = Obj[xNow - 1][yNow].h + Obj[xNow - 1][yNow].g;
+
+                            Obj[xNow - 1][yNow].parent = objNow;
+
+                            Queue.push(Obj[xNow - 1][yNow]);
+
+                        }
+
+                        if (Obj[xNow + 1][yNow] != 0 && Obj[xNow + 1][yNow].ispass == true && Obj[xNow + 1][yNow].isPush == 0) {
+
+                            Obj[xNow + 1][yNow].isPush = 1;
+
+                            Obj[xNow + 1][yNow].g = objNow.g + 1;
+
+                            Obj[xNow + 1][yNow].f = Obj[xNow + 1][yNow].h + Obj[xNow + 1][yNow].g;
+
+                            Obj[xNow + 1][yNow].parent = objNow;
+
+                            Queue.push(Obj[xNow + 1][yNow]);
+
+                        }
+
+                        if (Obj[xNow][yNow - 1] != 0 && Obj[xNow][yNow - 1].ispass == true && Obj[xNow][yNow - 1].isPush == 0) {
+
+                            Obj[xNow][yNow - 1].isPush = 1;
+
+                            Obj[xNow][yNow - 1].g = objNow.g + 1;
+
+                            Obj[xNow][yNow - 1].f = Obj[xNow][yNow - 1].h + Obj[xNow][yNow - 1].g;
+
+                            Obj[xNow][yNow - 1].parent = objNow;
+
+                            Queue.push(Obj[xNow][yNow - 1]);
+
+                        }
+
+                        if (Obj[xNow][yNow + 1] != 0 && Obj[xNow][yNow + 1].ispass == true && Obj[xNow][yNow + 1].isPush == 0) {
+
+                            Obj[xNow][yNow + 1].isPush = 1;
+
+                            Obj[xNow][yNow + 1].g = objNow.g + 1;
+
+                            Obj[xNow][yNow + 1].f = Obj[xNow][yNow + 1].h + Obj[xNow][yNow + 1].g;
+
+                            Obj[xNow][yNow + 1].parent = objNow;
+
+                            Queue.push(Obj[xNow][yNow + 1]);
+
+                        }
+
+                    }
+
+                     flag2 = 1;
+
+                    if (flag == 0) {
+
+                        flag1 = 1;
+
+                        count = 1;
+
+                        flag2 = 3;
+
+                        var temp = document.getElementById("r" + xEnd + "_" + yEnd);
+                        
+                        alert("没有找到可行的路径，请重新设置");
+
+                        temp.className = "blank";
+
+                    }
+
+                    else {
+
+                        while (!(objNow.x == xBegin && objNow.y == yBegin)) {
+
+                            var obj = new Object();
+
+                            obj.x = objNow.x;
+
+                            obj.y = objNow.y;
+
+                            Route.push(obj);
+
+                            objNow = objNow.parent;
+
+                        }
+
+                        flag3 = 1;
+
+                        length = Route.length;
+
+                        head = 0;
+
+                        if (flag4++ != 0) {
+
+                            var temp = document.getElementById("r" + xBegin + "_" + yBegin);
+
+                            temp.className = "blank";
+
+                        }
+
+
+
+                        function after() {
+
+                            if (Route.length == 0 && flag2 == 1) {
+
+                                flag1 = 1;
+
+                                count = 1;
+
+                                flag2++;
+
+                                flag3 = 0;
+
+                            }
+
+                            if (Route.length != 0 && flag3 > 0) {
+
+                                if (Route.length != length) {
+
+                                    var temp = document.getElementById(head);
+
+                                    temp.className = "blank";
+
+                                }
+
+                                var obj = Route.pop();
+
+                                var temp = document.getElementById("r" + obj.x + "_" + obj.y);;
+
+                                temp.className = "route";
+
+                                head = temp.id;
+
+                            }
+
+                        }
+
+                        setInterval(after, 450);
+
+                    }
+
+                }
+
+            }
+
+        };
+
+    </script>
+
+
+
+    <style>
+        body {
+            font-size: 0;
+            overflow: auto;
+        }
+
+
+
+        .wall {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin: 0;
+            background-image: url(img1/1.png);
+        }
+
+
+
+        .route {
+            display: inline-block;
+            width: 29px;
+            height: 29px;
+            border: 0.5px solid blue;
+            background-image: url(img1/2.png);
+            background-repeat: no-repeat;
+            margin: 0;
+        }
+
+
+
+        .blank {
+            display: inline-block;
+            width: 29px;
+            height: 29px;
+            margin: 0;
+            border: 0.5px solid blue;
+        }
+
+
+
+        #max {
+            height: 630px;
+            width: 1200px;
+        }
+
+
+
+        #right {
+            float: right;
+            text-align: center;
+        }
+
+
+
+        #Start {
+            width: 120px;
+            margin: 100px auto;
+        }
+
+
+
+        .start {
+            display: inline-block;
+            width: 29px;
+            height: 29px;
+            margin: 0;
+            border: 0.5px solid blue;
+            background-image: url(img1/4.png);
+            background-repeat: no-repeat;
+        }
+
+
+
+        .end {
+            display: inline-block;
+            width: 29px;
+            height: 29px;
+            margin: 0;
+            border: 0.5px solid blue;
+            background-image: url(img1/3.png);
+            background-repeat: no-repeat;
+        }
+
+        #text {
+            width: 128px;
+            height: 315px;
+            font-size: 15px;
+            border: 1px solid red;
+            margin: 60px auto;
+        }
+    </style>
+
+
+
+</head>
+
+<body>
+
+    <div id="max">
+
+        <div id="right">
+
+            <div id="text">
+
+                <h2>提示：</h2>
+
+                先点击地图任意位置设置起点，再设置终点，然后设置障碍物（起点和终点一经设置不可以随便修改，障碍物可以通过再次点击消除），最后点击右侧的开始按钮，到底终点后可以重新设置终点和障碍物。
+
+            </div>
+
+            <button id="Start">开&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;始</button>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

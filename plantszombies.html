@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="plantzombie.css" />
+    <script type="text/javascript">
+        window.onload = function () {
+
+            var money_arr = [100, 50, 325];
+            var plant_hp = [230, 170, 290];
+            var plant_damage = [7, 0, 7];
+            var route_arr = [0, 0, 0, 0, 0, 0];
+
+            var zombie_hp = [400,500];
+            var zombie_damage = [14, 20];
+            var zombie_speed = [2, 2];
+
+            var ball_speed = [6, 0, 6];
+            var ball_num = [0, 0, 2];
+
+
+            function getStyle(obj, name) {
+                if (obj.currentStyle) {
+                    return parseInt(obj.currentStyle[name]);
+                }
+                else {
+                    return parseInt(getComputedStyle(obj, null)[name]);
+                }
+            }
+
+            var box = document.getElementById("box");
+            var box1 = document.getElementById("box1");
+            var newplant = 0;
+            var card = 0;
+            box.style.left = parseInt(parseInt(document.body.clientWidth) / 2 - parseInt(getStyle(box, "width")) / 2) + "px";
+            var money = document.getElementById("text");
+            var warn = document.getElementById("none");
+
+            for (var i = 0; i < 5; i++) {
+                for (var j = 0; j < 9; j++) {
+                    var div = document.createElement("div");
+                    div.className = "square";
+                    div.id = "r" + (i + 1) + "_" + (j + 1);
+                    div.onmouseover = function () {
+                        if (newplant != 0 && this.className.indexOf("plant") == -1) {
+                            this.className = "mouseover";
+                        }
+                    };
+                    div.onmouseout = function () {
+                        if (newplant != 0 && this.className.indexOf("plant") == -1) {
+                            this.className = "square";
+                        }
+                    };
+                    box1.appendChild(div);
+                }
+                box1.appendChild(document.createElement("br"));
+            }
+
+            var cards = document.getElementsByTagName("li");
+            var plant_nowhp = [];
+            var plant_arr = [];
+
+            function interval_card(card) {
+                var timer = setTimeout(function () {
+                    clearTimeout(timer);
+                    card.id = card.id.split('_')[0];
+                }, 12000);
+            }
+            function interval_sun(plant) {
+                var timer = setInterval(function () {
+                    if (plant.className != "none") {
+                        var sun = document.createElement("div");
+                        sun.className = "sun";
+                        box.appendChild(sun);
+                        sun.style.left = parseInt(getStyle(plant, "left")) + parseInt(getStyle(plant, "width")) + "px";
+                        sun.style.top = parseInt(getStyle(plant, "top")) + "px";
+                        sun.onclick = function () {
+                            this.parentNode.removeChild(this);
+                            money.innerHTML = parseInt(money.innerHTML) + 1000 + "";
+                        };
+                    }
+                    else {
+                        clearInterval(timer);
+                    }
+                }, 10000);
+            }
+
+
+            document.onmouseup = function () {
+                if (newplant != 0) {
+                    plant1_obj = card;
+                    var light = document.getElementsByClassName("mouseover")[0];
+                    if (light != undefined && light.className.indexOf("plant") == -1) {
+                        card.id = newplant.className.split('_')[0] + "_cool";
+                        interval_card(card);
+                        newplant.style.left = box1.offsetLeft + light.offsetLeft + 5 + "px";
+                        newplant.style.top = box1.offsetTop + light.offsetTop + "px";
+                        light.className = "square plant";
+                        money.innerHTML = parseInt(money.innerHTML) - money_arr[parseInt(newplant.className.replace(/[^0-9]/ig, "")) - 1] + "";
+                        if (newplant.className == "plant2_fight") {
+                            interval_sun(newplant);
+                        }
+                        plant_arr.push(newplant);
+                        plant_nowhp.push(plant_hp[parseInt(newplant.className.replace(/[^0-9]/ig, "")) - 1]);
+                    }
+                    else {
+                        card.id = newplant.className.split('_')[0];
+                        newplant.parentNode.removeChild(newplant);
+                    }
+                    card = 0;
+                    newplant = 0;
+                }
+            };
+
+            var box_left = box.offsetLeft;
+            var box_top = box.offsetTop;
+
+            document.onmousemove = function (event) {
+                if (newplant != 0) {
+                    event=event||window.event;
+                    newplant.style.left = event.clientX - parseInt(getStyle(newplant, "width")) / 2 - box_left + "px";
+                    newplant.style.top = event.clientY - parseInt(getStyle(newplant, "height")) / 2 - box_top + "px";
+                }
+            };
+            
+            for (var i = 1; i < cards.length; i++) {
+                cards[i].onmousedown = function (event) {
+                    event = event || window.event;
+                    if (this.id.indexOf("cool") == -1) {
+                        if (money_arr[parseInt(this.id.replace(/[^0-9]/ig, "")) - 1] > parseInt(money.innerHTML)) {
+                            warn.id = "warn";
+                            var timer = setTimeout(function () {
+                                clearTimeout(timer);
+                                warn.id = "none";
+                            }, 2000);
+                        }
+                        else {
+                            var plant = document.createElement("div");
+                            plant.className = this.id + "_fight";
+                            box.appendChild(plant);
+                            plant.style.left = event.clientX - parseInt(getStyle(plant, "width")) / 2 - box_left + "px";
+                            plant.style.top = event.clientY - parseInt(getStyle(plant, "height")) / 2 - box_top + "px";
+                            newplant = plant;
+                            card = this;
+                            this.id = "none";
+                        }
+                    }
+                };
+            }
+
+            var zombie_arr = [];
+            var zombie_nowhp = [];
+            var plant_fight = [];
+            var ball_arr = [];
+            setInterval(ball_move, 20);
+            var kill_num = 0;
+
+            function ball_move() {
+                for (var i = 0; i < ball_arr.length; i++) {
+                    ball_arr[i].style.left = getStyle(ball_arr[i], "left") + ball_speed[parseInt(ball_arr[i].className.replace(/[^0-9]/ig, "")) - 1] + "px";
+                    if (getStyle(ball_arr[i], "left") >= getStyle(box1, "width") + getStyle(box1, "right")) {
+                        ball_arr[i].parentNode.removeChild(ball_arr[i]);
+                        ball_arr.splice(i, 1);
+                        i--;
+                    }
+                    else {
+                        for (var j = 0; j < zombie_arr.length; j++) {
+                            if (getStyle(ball_arr[i], "left") >= getStyle(zombie_arr[j], "left") && getStyle(ball_arr[i], "top") >= getStyle(zombie_arr[j], "top") && getStyle(ball_arr[i], "top") + getStyle(ball_arr[i], "height") <= getStyle(zombie_arr[j], "top") + getStyle(zombie_arr[j], "height") && zombie_nowhp[j] > 0) {
+                                zombie_nowhp[j] -= plant_damage[parseInt(ball_arr[i].className.replace(/[^0-9]/ig, "")) - 1];
+                                ball_arr[i].parentNode.removeChild(ball_arr[i]);
+                                ball_arr.splice(i, 1);
+                                if (zombie_nowhp[j] <= 0) {
+                                    var index = parseInt((getStyle(zombie_arr[j], "top") + getStyle(zombie_arr[j], "height")) / (getStyle(box1, "height") / 5)) + 1;
+                                    if (route_arr[index] > 0) {
+                                        route_arr[index]--;
+                                    }
+                                }
+                                i--;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            function ball_produce(plant) {
+                var ball = document.createElement("div");
+                ball.className = plant.className.split('_')[0] + "_ball";
+                box1.appendChild(ball);
+                ball.style.left = getStyle(plant, "left") + getStyle(plant, "width") - getStyle(box1, "left") + "px";
+                ball.style.top = getStyle(plant, "top") - getStyle(box1, "top") + "px";
+                ball_arr.push(ball);
+            }
+
+
+            function plant_attach(index,plant) {
+                var timer = setInterval(function () {
+                    if (route_arr[index] <= 0) {
+                        clearInterval(timer);
+                        var i = plant_fight.indexOf(plant);
+                        if (i != -1) {
+                            plant_fight.splice(i, 1);
+                        }
+                    }
+                    else {
+                        ball_produce(plant);
+                        var num = ball_num[parseInt(plant.className.replace(/[^0-9]/ig, "")) - 1];
+                        if (num != 0) {
+                            var timer1 = setInterval(function () {
+                                if (num) {
+                                    ball_produce(plant);
+                                    num--;
+                                }
+                                else {
+                                    clearInterval(timer1);
+                                }
+                            }, 300);
+                        }
+                    }
+                }, 2000);
+            }
+
+            function fight(plant,zombie) {
+                zombie.className = zombie.className.split('_')[0] + "_fight";
+                var timer = setInterval(function () {
+                    if (plant.className == "none") {
+                        clearInterval(timer);
+                        zombie.className = zombie.className.split('_')[0] + "_run";
+                    }
+                    else {
+                        if (zombie.className != "none") {
+                            var i = plant_arr.indexOf(plant);
+                            plant_nowhp[i] -= zombie_damage[parseInt(zombie.className.replace(/[^0-9]/ig, "")) - 1];
+                        }
+                    }
+                }, 500);
+            }
+
+            function reset(y, plant) {
+                var x = parseInt((getStyle(plant, "left") + getStyle(plant, "width") - getStyle(box1, "left")) / (getStyle(box1, "width") / 9)) + 1;
+                console.log(x, y);
+                if (x > 0) {
+                    var div = document.getElementById("r" + y + "_" + x);
+                    div.className = "square";
+                }
+            }
+            
+            setInterval(plant_active, 100);
+            function plant_active() {
+                for (var i = 0; i < plant_arr.length; i++) {
+                    var index = parseInt((getStyle(plant_arr[i], "top") + getStyle(plant_arr[i], "height") - getStyle(box1, "top")) / (getStyle(box1, "height") / 5)) + 1;
+                    if (plant_nowhp[i] <= 0) {
+                        reset(index, plant_arr[i]);
+                        plant_arr[i].parentNode.removeChild(plant_arr[i]);
+                        plant_arr[i].className = "none";
+                        plant_arr.splice(i, 1);
+                        plant_nowhp.splice(i, 1);
+                        i--;        
+                        continue;
+                    }
+                    if (route_arr[index] > 0) {
+                        if (plant_fight.indexOf(plant_arr[i]) == -1) {
+                            plant_fight.push(plant_arr[i]);
+                            plant_attach(index, plant_arr[i]);
+                        }
+                    }
+                    for (var j = 0; j < zombie_arr.length; j++) {
+                        if (getStyle(zombie_arr[j], "left") <= getStyle(plant_arr[i], "left") - getStyle(box1, "left") + getStyle(plant_arr[i], "width") - 35 && getStyle(zombie_arr[j], "left") >= getStyle(plant_arr[i], "left") - getStyle(box1, "left") && getStyle(zombie_arr[j], "top") <= getStyle(plant_arr[i], "top") - getStyle(box1, "top") && getStyle(zombie_arr[j], "top") + getStyle(zombie_arr[j], "height") >= getStyle(plant_arr[i], "top") - getStyle(box1, "top") + getStyle(plant_arr[i], "height") && zombie_arr[j].className.indexOf("fight") == -1) {
+                            fight(plant_arr[i], zombie_arr[j]);
+                        }
+                    }
+                }
+            }
+
+            var flag1 = 0;
+            function zombie_move(){
+                for (var i = 0; i < zombie_arr.length; i++) {
+                    if (zombie_nowhp[i] <= 0) {
+                        zombie_arr[i].parentNode.removeChild(zombie_arr[i]);
+                        zombie_arr[i].className = "none";
+                        zombie_arr.splice(i, 1);
+                        zombie_nowhp.splice(i, 1);
+                        kill_num++;
+                        i--;         
+                        if (kill_num > 10 && flag1 == 0) {
+                            flag1 = 1;
+                            boss();
+                        }
+                        if (kill_num > 50) {
+                            location.reload();
+                            alert("你赢了");
+                        }
+                    }
+                    else if (getStyle(zombie_arr[i], "left") <= -getStyle(zombie_arr[i], "width")) {
+                        location.reload();
+                        alert("僵尸吃掉了你的脑袋");
+                    }
+                    else if (zombie_arr[i].className.indexOf("fight") == -1) {
+                        zombie_arr[i].style.left = parseInt(zombie_arr[i].style.left) - zombie_speed[parseInt(zombie_arr[i].className.replace(/[^0-9]/ig, "")) - 1] + "px";
+                    }
+                }
+            }
+            function boss() {
+                var num = 0;
+                var timer = setInterval(function () {
+                    zombie_produce("zombie2_run");
+                    num++;
+                    if (num > 30) {
+                        clearInterval(timer);
+                    }
+                }, 12000);
+            }
+
+            setInterval(function () {
+                zombie_produce("zombie1_run");
+            }, 25000);
+            var flag = 0;
+            function zombie_produce(name) {
+                var i = parseInt(Math.random() * 5 + 1);
+                var zombie = document.createElement("div");
+                zombie.style.left = parseInt(getStyle(box1, "width")) + 100 + "px";
+                zombie.className = name;
+                zombie_nowhp.push(zombie_hp[parseInt(zombie.className.replace(/[^0-9]/ig, "")) - 1]);
+                box1.appendChild(zombie);
+                zombie_arr.push(zombie);
+                zombie.style.top = parseInt(parseInt(getStyle(box1, "height")) / 5 * i) - parseInt(getStyle(zombie, "height")) - 10 + "px";
+                route_arr[i]++;
+                if (flag == 0) {
+                    flag = 1;
+                    setInterval(zombie_move, 100);
+                }
+            }
+        };
+    </script>
+</head>
+<body>
+   <div class="tips">
+        <span>请使用谷歌浏览器</span>
+    </div>
+    <div id="box">
+        <ul id="plant">
+            <li id="bank"><div id="text">1000</div></li>
+            <li id="plant2"></li>
+            <li id="plant1"></li>
+            <li id="plant3"></li>
+        </ul>
+        <div id="none"></div>
+        <div id="box1"></div>
+    </div>
+</body>
+</html>

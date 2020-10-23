@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" name="referrer" content="no-referrer" />
+    <script src="jquery-1.12.4.js"></script>
+    <script src="myAjax.js"></script>
+    <title></title>
+    <meta charset="utf-8" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        html{
+            background-image: url("http://pic.netbian.com/uploads/allimg/180826/113958-153525479855be.jpg");
+            background-size: 100%;
+            background-repeat: no-repeat;
+        }
+        .input{
+            display: block;
+            width: 570px;
+            height: 80px;
+            border: 1px solid black;
+            resize: none;
+            position: absolute;
+        }
+        .top{
+            width: 570px;
+            height: 156px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .id{
+            width: 180px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            /*margin-left: 195px;*/
+        }
+        .submit{
+            position: absolute;
+            width: 60px;
+            bottom: 5px;
+            left: 505px;
+        }
+        .jianjie{
+            position: absolute;
+            width: 60px;
+            bottom: 5px;
+            left: 6px;
+        }
+        .comments{
+            margin:0 auto;
+            width: 570px;
+            height: 450px;
+            border: 1px solid black;
+            background-color: #99CCFF;
+            position:relative;
+            top: -10px;
+        }
+        ul{
+            list-style: none;
+            padding: 10px;
+        }
+        .com{
+            display: block;
+            width: 550px;
+            height: 120px;
+            border: 1px solid black;
+            margin-bottom: 10px;
+            overflow: auto;
+            position: relative;
+            font-size: 13px;
+        }
+        .page{
+            position: absolute;
+            margin-top: -14px;
+            left: 484px;
+        }
+        .bottom1{
+            position: absolute;
+            margin-top: 5px;
+            left: 500px;
+        }
+        .bottom2{
+            position: absolute;
+            margin-top: 5px;
+            left: 450px;
+        }
+        .time{
+            width: 220px;
+            height: 19px;
+            /*border: 1px solid red;*/
+            position: absolute;
+            bottom: 2px;
+        }
+        .upImg{
+            width: 25px;
+            height: 25px;
+            background-image: url("img/up.png");
+            position: absolute;
+            bottom: 2px;
+            right:200px;
+        }
+        .downImg{
+            width: 25px;
+            height: 25px;
+            background-image: url("img/down.png");
+            position: absolute;
+            bottom: 0px;
+            right: 100px;
+        }
+        .upNum {
+            width: 70px;
+            height: 14px;
+            position: absolute;
+            right: 130px;
+            bottom: 4px;
+        }
+        .downNum{
+            width: 70px;
+            height: 14px;
+            position: absolute;
+            right: 30px;
+            bottom: 4px;
+        }
+        .del{
+            width:40px;
+            height: 20px;
+            position: absolute;
+            bottom: 4px;
+            right: 10px;
+            text-align: center;
+            background-color: #AEDD81;
+        }
+        .page{
+            position: absolute;
+            bottom: 32px;
+            left: 480px;
+        }
+        .bottom1{
+            position: absolute;
+            bottom: 7px;
+        }
+        .bottom2{
+            position: absolute;
+            bottom: 7px;
+        }
+        span{
+            color: #111111;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        window.onload=function () {
+            var pages=1;
+            var count=1;
+            var signArr=[];
+            var newSign=[];
+            var $page=$(".page");
+            var $bottom1=$(".bottom1");
+            var $bottom2=$(".bottom2");
+            var $submit=$(".submit");
+            var $text1=$(".id");
+            var $text2=$(".input");
+            var $comment=$(".comment");
+            function addComment(text1,text2,time,upNum,downNum,flag) {
+                text1=text1.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                text2=text2.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                if(flag==1) {
+                    if(count!=1) {
+                        count = 1;
+                        read((count - 1) * 3);
+                    }
+                    $comment.prepend("  <li>\n" +
+                        "            <div class=\"com\">\n" +
+                        "                \n" + "<span>"+text1+"</span>" + "：" + "<br>" +
+                        "                \n" + text2 + "<br>" +
+                        "                <div class=\"time\">\n" +
+                        "                    " + time + "<br>" +
+                        "                </div>\n" +
+                        "                <div class=\"upImg\"></div>\n" +
+                        "                <div class=\"downImg\"></div>\n" +
+                        "                <div class=\"upNum\">" + upNum + "</div>\n" +
+                        "                <div class=\"downNum\">" + downNum + "</div>\n" +
+                        "                <button class='del'>"+"删除"+"</button>\n"+
+                        "            </div>\n" +
+                        "        </li>");
+                }else{
+                    $comment.append("  <li>\n" +
+                        "            <div class=\"com\">\n" +
+                        "                \n" +"<span>"+ text1+"</span>" + "：" + "<br>" +
+                        "                \n" + text2 + "<br>" +
+                        "                <div class=\"time\">\n" +
+                        "                    " + time + "<br>" +
+                        "                </div>\n" +
+                        "                <div class=\"upImg\"></div>\n" +
+                        "                <div class=\"downImg\"></div>\n" +
+                        "                <div class=\"upNum\">" + upNum + "</div>\n" +
+                        "                <div class=\"downNum\">" + downNum + "</div>\n" +
+                        "            </div>\n" +
+                        "        </li>");
+                }
+                if($(".comment li").length>3) {
+                    $li=$(".comment li:eq(3)");
+                    $li.remove();
+                    getPages();
+                }
+                $text1.val("");
+                $text2.val("");
+            }
+
+            function clear() {
+                $comment.html("");
+            }
+
+            function read(index) {
+                ajax({
+                    type: "get",
+                    url: "test.php",
+                    data: {
+                        flag: 1,
+                        index: index
+                    },
+                    timeout: 3000,
+                    success: function (xhr) {
+                        var a = xhr.responseText;
+                        var arr = JSON.parse(a);
+                        clear();
+                        for (var i = 0; i < arr.length; i++) {
+                            addComment(arr[i].name, arr[i].comment, arr[i].time, arr[i].upNum, arr[i].downNum, 2);
+                            signArr[i] = arr[i].sign;
+                            if (newSign.indexOf(parseInt(arr[i].sign)) != -1) {
+                                var $li = $(".comment li").eq(i);
+                                var $div = $li.children("div");
+                                var del = $("<button class='del'>删除</button>");
+                                $div.append(del);
+                            }
+                        }
+                    },
+                    error: function (xhr) {
+                        alert("服务器繁忙");
+                    }
+                })
+            }
+            function getPages() {
+                ajax({
+                    type:"get",
+                    url:"test.php",
+                    data:{
+                        flag:3
+                    },
+                    timeout:3000,
+                    success:function (xhr) {
+                        pages=parseInt(xhr.responseText);
+                        var c=parseInt(pages/3);
+                        if(pages%3!=0){
+                            c++;
+                        }
+                        pages=c;
+                        $page.text(count+"/"+pages);
+                    },
+                    error:function (xhr) {
+                        alert("服务器繁忙");
+                    }
+                })
+            }
+            getPages();
+            read((count-1)*3);
+            function addData(name,comment,time,upNum,downNum){
+                var sign=parseInt(Math.random()*Math.pow(10,16));
+                signArr.unshift(sign);
+                newSign.push(sign);
+                signArr[3]=null;
+                ajax({
+                    type:"get",
+                    url:"test.php",
+                    data:{
+                        flag:2,
+                        name:name,
+                        comment:comment,
+                        time:time,
+                        upNum:upNum,
+                        downNum:downNum,
+                        sign:sign
+                    },
+                    timeout:3000,
+                    success:function (xhr) {
+
+                    },
+                    error:function (xhr) {
+                        alert("服务器繁忙");
+                    }
+                })
+            }
+            $submit.click(function () {
+                if($text1.val().length>0&&$text2.val().length>0&&$text2.val().length<151&&$text1.val().length<21) {
+                    var a=new  Date;
+                    var time=a.getFullYear()+"年"+(a.getMonth()+1)+"月"+a.getDate()+"日"+a.getHours()+"时"+a.getMinutes()+"分"+a.getSeconds()+"秒";
+                    addData($text1.val(),$text2.val(),time,0,0);
+                    getPages();
+                    addComment($text1.val(),$text2.val(),time,0,0,1);
+                }
+            })
+           
+            $bottom2.click(function () {
+                if(count>1){
+                    count--;
+                    $page.text(count+"/"+pages);
+                    read((count-1)*3);
+                }
+            })
+            $bottom1.click(function () {
+                getPages();
+                if(count<pages){
+                    count++;
+                    $page.text(count+"/"+pages);
+                    read((count-1)*3);
+                }
+            })
+            function changeData(sign,flag) {
+                ajax({
+                    type: "get",
+                    url: "test.php",
+                    data: {
+                        flag: 4,
+                        flag1: flag,
+                        sign: sign
+                    },
+                    timeout: 3000,
+                    success: function (xhr) {
+                    },
+                    error: function (xhr) {
+                        alert("服务器繁忙");
+                    }
+                })
+            }
+            function delet(index,sign){
+                ajax({
+                    type:"get",
+                    url:"test.php",
+                    data:{
+                        flag:5,
+                        sign:sign
+                    },
+                    timeout:3000,
+                    success:function (xhr) {
+                        getPages();
+                        read((count-1)*3);
+                    },
+                    error:function (xhr) {
+                        alert("服务器繁忙");
+                    }
+                })
+            }
+            $(document).on("click","[class='del']",function () {
+                var $li=$(this).parent("div").parent("li");
+                var index=$li.index();
+                var sign=signArr[index];
+                delet(index,sign);
+                $li.remove();
+            })
+
+            var isClick=[];
+            $(document).on("click","[class='upImg']",function () {
+                var $par = $(this).parent("div");
+                var upNum = $par.children(".upNum");
+                var index=$par.parent("li").index();
+                if(isClick.indexOf(signArr[index])==-1) {
+                    var num = parseInt(upNum.text());
+                    upNum.text((num + 1) + "");
+                    isClick.push(signArr[index]);
+                    changeData(signArr[index],1);
+                }
+            })
+
+            $(document).on("click","[class='downImg']",function () {
+                var $par = $(this).parent("div");
+                var upNum = $par.children(".downNum");
+                var index=$par.parent("li").index();
+                if(isClick.indexOf(signArr[index])==-1) {
+                    var num = parseInt(upNum.text());
+                    upNum.text((num + 1) + "");
+                    isClick.push(signArr[index]);
+                    changeData(signArr[index],2);
+                }
+            })
+        };
+    </script>
+</head>
+<body>
+<div class="top">
+    <input class="id" type="text" placeholder="请输入昵称(20字以内)...">
+    <textarea class="input" type="text" placeholder="请输入内容(150字以内)..."></textarea>
+    <button class="submit">发表</button>
+</div>
+<div class="comments">
+    <ul class="comment">
+    </ul>
+    <div class="page">1/1</div>
+    <button class="bottom1">下一页</button><button class="bottom2">上一页</button>
+</div>
+</body>
+</html>

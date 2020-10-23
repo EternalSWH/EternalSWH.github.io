@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>飞机大战</title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+        #box {
+            width: 440px;
+            height: 610px;
+            position: absolute;
+            overflow:hidden;
+            background-image: url("image/background.png");
+        }
+
+        #me {
+            width: 46px;
+            height: 57px;
+            background-image: url("image/me.png");
+            position: absolute;
+            top:500px;
+            left:180px;
+        }
+
+        .bullet {
+            width: 5px;
+            height: 11px;
+            background-image: url("image/bullet.png");
+            position: absolute;
+        }
+
+        .plane1 {
+            width: 57px;
+            height: 43px;
+            background-image: url("image/plane1.png");
+            position: absolute;
+        }
+
+        .bullet_supply {
+            width: 58px;
+            height: 88px;
+            background-image: url("image/bullet_supply.png");
+            position: absolute;
+        }
+           .plane2 {
+            width: 69px;
+            height: 99px;
+            background-image: url("image/plane2.png");
+            position: absolute;
+        }
+           .plane3{
+            width: 169px;
+            height: 258px;
+            background-image: url("image/plane3.png");
+            position: absolute;
+           }
+           #Score{
+               position:absolute;
+           }
+           .plane4{
+            width: 197px;
+            height: 134px;
+            background-image: url("image/plane4.png");
+            position: absolute;
+           }
+           .bullet_supply1{
+               width:60px;
+               height:107px;
+               background-image: url("image/bullet_supply1.png");
+            position: absolute;
+           }
+           .tips{
+            width:150px;
+            height:350px;
+            text-align:center;
+            border:1px solid red;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function () {
+            var box = document.getElementById("box");
+            var me = document.getElementById("me");
+            var Score = document.getElementById("Score");
+            box.style.left = document.body.clientWidth / 2 - 220 + "px";
+            box.style.top = 0 + "px";
+            var plane1_arr = [];          //存储1号敌机
+            var plane2_arr = [];          //存储2号敌机
+            var plane2hp_arr = [];        //2号敌机hp
+            var plane3_arr = [];          //存储3号敌机
+            var plane3hp_arr = [];        //3号敌机hp
+            var bullet_arr = [];          //存储子弹
+            var supply_arr = [];          //存储补给包
+            var score = 0;                //得分
+            var bullet_num = 1;           //每次发射的子弹数量
+            var timer3 = 0;
+            var plane2hp = 4;
+            var plane4_arr = [];          //存储4号敌机
+            var plane4hp_arr = [];
+            var timer1 = 0;
+            var supply1_arr = [];
+            var Flag = 0;
+            var timer4 = 0;
+
+            //检测碰撞
+            function collide(obj, arr, index, height, width1, width2) {
+                for (var i = 0; i < arr.length; i++) {
+                    if (parseInt(obj.style.top) <= parseInt(arr[i].style.top) + height && (parseInt(obj.style.left) >= parseInt(arr[i].style.left) - width1 && parseInt(obj.style.left) <= parseInt(arr[i].style.left) + width2)) {
+                        if (obj.className == "bullet" && arr[i].className == "plane1") {    //子弹与1号敌机相撞
+                            plane1_arr[i].parentNode.removeChild(plane1_arr[i]);
+                            plane1_arr.splice(i, 1);                                        //删除1号敌机
+                            obj.parentNode.removeChild(obj);
+                            bullet_arr.splice(index, 1);                                    //删除子弹
+                            Plane("plane1");                                                //生成1号敌机
+                            i--;
+                            score += 10;
+                            Score.innerHTML = "得分:" + score;
+                        }
+                        else if (obj.id == "me" && arr[i].className == "bullet_supply" && parseInt(obj.style.top) + 57 >= parseInt(arr[i].style.top)) {        //我方战机与弹药补给包相撞
+                            bullet_num = parseInt(Math.random() * 14 + 2);
+                            arr[i].parentNode.removeChild(arr[i]);
+                            arr.shift();
+                        }
+                        else if (obj.id == "me" && arr[i].className == "bullet_supply1" && parseInt(obj.style.top) + 57 >= parseInt(arr[i].style.top)) {        //我方战机与弹药补给包1相撞
+                            Flag = 1;
+                            timer4 = setInterval(function () {
+                                Flag = 0;
+                                clearInterval(timer4);
+                            }, 8000);
+                            arr[i].parentNode.removeChild(arr[i]);
+                            arr.shift();
+                        }
+                        else if (obj.className == "bullet" && arr[i].className == "plane2") {     //子弹与二号敌机碰撞
+                            if (parseInt(obj.style.width) > 10) {
+                                plane2hp_arr[i] -= 2;
+                            } else {
+                                plane2hp_arr[i]--;
+                            }
+                            obj.parentNode.removeChild(obj);
+                            bullet_arr.splice(index, 1);                                        //删除子弹
+                        }
+                        else if (obj.className == "bullet" && arr[i].className == "plane3") {      //子弹与三号敌机相撞
+                            if (parseInt(obj.style.width) > 10) {
+                                plane3hp_arr[i] -= 2;
+                            } else {
+                                plane3hp_arr[i]--;
+                            }
+                            obj.parentNode.removeChild(obj);
+                            bullet_arr.splice(index, 1);
+                        }
+                        else if (obj.className == "bullet" && arr[i].className == "plane4") {      //子弹与4号敌机相撞
+                            if (parseInt(obj.style.width) > 10) {
+                                plane4hp_arr[i] -= 2;
+                            } else {
+                                plane4hp_arr[i]--;
+                            }
+                            obj.parentNode.removeChild(obj);
+                            bullet_arr.splice(index, 1);
+                        }
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+
+            //生成敌机的函数
+            var flag2 = 0;
+            function Plane(str) {                       //形参为敌机型号
+                var width = 0;
+                var height = 0;
+                if (str == "plane1") {             
+                    width = 57;
+                    height = -43;
+                }
+                if (str == "bullet_supply") {
+                    width = 58;
+                    height = -88;
+                }
+                if (str == "plane2") {                     //敌机的宽度和top
+                    width = 69;
+                    height = -99;
+                }
+                if (str == "plane3") {
+                    width = 169;
+                    height = -258;
+                }
+                if (str == "plane4") {
+                    width = 197;
+                    height = -134;
+                }
+                if (str == "bullet_supply1") {
+                    width = 60;
+                    height = -107;
+                }
+                var plane1 = document.createElement("div");
+                plane1.className = str;
+                plane1.style.left = "0px";
+                plane1.style.left = parseInt(Math.random() * (440 - width)) + "px";
+                plane1.style.top = height + "px";                                      //设置敌机起始位置
+                box.appendChild(plane1);
+                if (str == "plane1") {
+                    plane1_arr.push(plane1);
+                }
+                if (str == "bullet_supply") {
+                    supply_arr.push(plane1);
+                }
+                if (str == "plane2") {
+                    plane2_arr.push(plane1);
+                    plane2hp_arr.push(plane2hp);                                            //放进数组
+                }
+                if (str == "plane3") {
+                    plane3_arr.push(plane1);
+                    plane3hp_arr.push(1000);
+                }
+                if (str == "plane4") {
+                    plane4_arr.push(plane1);
+                    plane4hp_arr.push(800);
+                }
+                if (str == "bullet_supply1") {
+                    supply1_arr.push(plane1);
+                }
+                //开一个定时器改变plane1和supply的状态
+                if (flag2 == 0) {
+                    flag2 = 1;
+                    setInterval(function () {
+                        for (var i = 0; i < plane1_arr.length; i++) {                                 //遍历检测1号敌机
+                            plane1_arr[i].style.top = parseInt(plane1_arr[i].style.top) + 1 + "px";
+                            if (parseInt(plane1_arr[i].style.top) >= 610) {                           //判断1号敌机是否越界
+                                plane1_arr[i].parentNode.removeChild(plane1_arr[i]);
+                                plane1_arr.shift();
+                                i--;
+                                Plane("plane1");
+                            }
+
+                        }
+                        if (flag2 == 1 && score >= 200) {                                      //随着得分提高增加飞机数量
+                            flag2 = 2;
+                            Plane("plane1");
+                            Plane("plane2");
+                        }
+                        if (flag2 == 2 && score >= 400) {
+                            flag2 = 3;
+                            setInterval(function () {                                          //生成弹药补给包
+                                Plane("bullet_supply");
+                            }, 12000);
+                            for (var i = 0; i < 1; i++) {
+                                Plane("plane1");
+                            }
+                            for (var i = 0; i < 1; i++) {
+                                Plane("plane2");
+                            }
+                        }
+                        if (flag2 == 3 && score >= 1600) {
+                            flag2 = 4;
+                            setInterval(function () {                                          //生成补给包1
+                                Plane("bullet_supply1");
+                            }, 22000);
+                            for (var i = 0; i < 4; i++) {
+                                Plane("plane1");
+                            }
+                            for (var i = 0; i < 2; i++) {
+                                Plane("plane2");
+                            }
+                        }
+                        if (flag2 == 4 && score >= 3500) {
+                            flag2 = 5;
+                            plane2hp = 13;
+                            for (var i = 0; i < 3; i++) {
+                                Plane("plane1");
+                            }
+                            for (var i = 0; i < 2; i++) {
+                                Plane("plane2");
+                            }
+                            setInterval(function () {
+                                //开一个定时器改变敌机3的状态
+                                Plane("plane3");
+                                timer = setInterval(function () {
+                                    if (plane3_arr.length > 0) {                                                    //检测三号敌机，只有一台
+                                        plane3_arr[0].style.top = parseInt(plane3_arr[0].style.top) + 1 + "px";
+                                        if (parseInt(plane3_arr[0].style.top) >= 610 || plane3hp_arr[0] <= 0) {       //越界或hp为0
+                                            plane3_arr[0].parentNode.removeChild(plane3_arr[0]);
+                                            plane3_arr.shift();
+                                            plane3hp_arr.shift();
+                                            clearInterval(timer);
+                                            if (plane3hp_arr[0] <= 0) {
+                                                score += 100;
+                                                Score.innerHTML = "得分:" + score;
+                                            }
+                                        }
+                                    }
+                                }, 40);
+                            }, 80000);
+
+                            setInterval(function () {
+                                //开一个定时器改变敌机4的状态
+                                Plane("plane4");
+                                timer1 = setInterval(function () {
+                                    if (plane4_arr.length > 0) {                                                    //检测4号敌机，只有一台
+                                        plane4_arr[0].style.top = parseInt(plane4_arr[0].style.top) + 1 + "px";
+                                        if (parseInt(plane4_arr[0].style.top) >= 610 || plane4hp_arr[0] <= 0) {       //越界或hp为0
+                                            plane4_arr[0].parentNode.removeChild(plane4_arr[0]);
+                                            plane4_arr.shift();
+                                            plane4hp_arr.shift();
+                                            clearInterval(timer1);
+                                            if (plane4hp_arr[0] <= 0) {
+                                                score += 100;
+                                                Score.innerHTML = "得分:" + score;
+                                            }
+                                        }
+                                    }
+                                }, 30);
+                            }, 50000);
+
+
+                        }
+
+                        if (supply_arr.length > 0) {                                                 //检测补给包，每次只会生成一个补给包，所以总是数组第一个
+                            supply_arr[0].style.top = parseInt(supply_arr[0].style.top) + 1 + "px";
+                            if (parseInt(supply_arr[0].style.top) >= 610) {
+                                supply_arr[0].parentNode.removeChild(supply_arr[0]);
+                                supply_arr.shift();
+                            }
+                            else {
+                                collide(me, supply_arr, 0, 58, 46, 88);                          //检测是否碰撞
+                            }
+                        }
+
+
+                        if (supply1_arr.length > 0) {                                                 //检测补给包1，每次只会生成一个补给包1，所以总是数组第一个
+                            supply1_arr[0].style.top = parseInt(supply1_arr[0].style.top) + 1 + "px";
+                            if (parseInt(supply1_arr[0].style.top) >= 610) {
+                                supply1_arr[0].parentNode.removeChild(supply1_arr[0]);
+                                supply1_arr.shift();
+                            }
+                            else {
+                                collide(me, supply1_arr, 0, 107, 46, 60);                          //检测是否碰撞
+                            }
+                        }
+
+
+                    }, 7);
+                    //开一个定时器改变敌机2的状态
+                    setInterval(function () {
+                        for (var i = 0; i < plane2_arr.length; i++) {                                  //遍历检测二号敌机
+                            plane2_arr[i].style.top = parseInt(plane2_arr[i].style.top) + 1 + "px";
+                            if (parseInt(plane2_arr[i].style.top) >= 610) {                            //越界
+                                plane2_arr[i].parentNode.removeChild(plane2_arr[i]);
+                                plane2_arr.shift();
+                                plane2hp_arr.shift();
+                                i--;
+                                Plane("plane2");
+                            }
+                            if (plane2hp_arr[i] <= 0) {                                            //hp为0
+                                plane2_arr[i].parentNode.removeChild(plane2_arr[i]);
+                                plane2_arr.splice(i, 1);
+                                plane2hp_arr.splice(i, 1);
+                                i--;
+                                score += 15;
+                                Score.innerHTML = "得分:" + score;
+                                Plane("plane2");
+                            }
+                        }
+                    }, 10);
+
+                }
+            }
+            Plane("plane1");
+
+            //飞机跟随鼠标移动
+          
+            box.onmousemove = function (event) {
+                var x = event.clientX;
+                var y = event.clientY;
+                if ((x >= parseInt(box.style.left) + 23 && x <= parseInt(box.style.left) + 417) && (y >= parseInt(box.style.top) + 29 && y <= parseInt(box.style.top) + 596)) {
+                    me.style.left = parseInt(x) - parseInt(box.style.left) - 23 + "px";
+                    me.style.top = parseInt(y) - 29 + "px";
+                }
+            };
+            var flag1 = 0;
+            var width1 = 0;
+            var height1 = 0;
+            var space = 0;
+            box.onclick = function (event) {
+                if (Flag == 1) {
+                    width1 = 32;
+                    height1 = 64;
+                    space = 20;
+                }
+                else {
+                    width1 = 5;
+                    height1 = 11;
+                    space = 20;
+                }
+                for (var i = 0; i < bullet_num; i++) {
+                    var div = document.createElement("div");
+                    div.className = "bullet";
+                    div.style.width = width1 + "px";
+                    div.style.height = height1 + "px";
+                    if (Flag == 0) {
+                        div.style.backgroundImage = "url(" + "image/bullet.png" + ")";
+                    }
+                    else {
+                        div.style.backgroundImage = "url(" + "image/bullet1.png" + ")";
+                    }
+                    div.style.left = event.clientX - parseInt(box.style.left) + parseInt(bullet_num * space / 2) - 10 - space * i + "px";
+                    div.style.top = event.clientY - parseInt(box.style.top) - 36 + "px";
+                    box.appendChild(div);
+                    bullet_arr.push(div);
+                }
+                if (flag1 == 0) {
+                    flag1 = 1;
+                    //改变子弹的状态
+                    setInterval(function () {
+                        for (var i = 0; i < bullet_arr.length; i++) {
+                            bullet_arr[i].style.top = parseInt(bullet_arr[i].style.top) - 4 + "px";
+                            if (parseInt(bullet_arr[i].style.top) <= -11) {                        //判断是否越界
+                                bullet_arr[i].parentNode.removeChild(bullet_arr[i]);
+                                bullet_arr.shift();
+                                i--;
+                            }
+                            else {                                                                  //检测碰撞
+                                if (collide(bullet_arr[i], plane1_arr, i, 43, parseInt(bullet_arr[i].style.width), 57) == 1) {        //子弹和敌机1
+                                    i--;                                                            //删除后i回退1
+                                }
+                                else if (collide(bullet_arr[i], plane2_arr, i, 99, parseInt(bullet_arr[i].style.width), 69) == 1) {      //子弹与敌机2
+
+                                    i--;
+                                }
+                                else if (collide(bullet_arr[i], plane3_arr, i, 258, parseInt(bullet_arr[i].style.width), 169) == 1) {   //子弹与敌机3
+                                    i--;
+                                }
+                                else if (collide(bullet_arr[i], plane4_arr, i, 134, parseInt(bullet_arr[i].style.width), 197) == 1) {   //子弹与敌机4
+                                    i--;
+                                }
+                            }
+                        }
+
+                    }, 3);
+                }
+            };
+
+        };
+
+    </script>
+</head>
+<body>
+    <div class="tips">
+        <h2>提示</h2>
+        <span>到达一定分数后会供应两种弹药补给包,蓝色的可以改变每次发射子弹的数量(数量为2-12随机，永久生效)，每12秒供应一次，红色的可以改变子弹类型,持续8秒，每22秒供应一次，因为很多机制没写，所以我方无敌，刚开始加载图片需要时间，会出现小bug</span>
+    </div>
+    <div id="box">
+        <div id="Score">得分:0</div>
+        <div id="me"></div>
+    </div>
+</body>
+</html>

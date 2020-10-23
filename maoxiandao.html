@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="element.css"/>
+    <script type="text/javascript">
+        window.onload = function () {
+            function getStyle(obj, name) {
+                if (obj.currentStyle) {
+                    return obj.currentStyle[name];
+                }
+                else {
+                    return getComputedStyle(obj, null)[name];
+                }
+            }
+
+            var box = document.getElementById("box");
+            var me = document.getElementsByClassName("me_rightstand")[0];
+
+            box.style.backgroundPositionX = "0px";                                                                      //初始化
+            me.style.left = "150px";
+            box.style.left = parseInt(document.body.clientWidth / 2 - parseInt(getStyle(box, "width")) / 2) + "px";     //居中
+
+            var me_speed = 2;                  //行走速度
+            var i_rightrun = 0;
+            var timer_d = 0;
+            var flag_d = 0;
+            var timer_moved = 0;
+            var i_leftrun = 0;
+            var timer_a = 0;
+            var flag_a = 0;
+            var timer_movea = 0;
+            var i_kick = 0;
+            var flag_l = 0;
+            var timer_l = 0;
+            var left = 0;
+            var right = 1;
+            var l = 0;
+            var bg_speed = 10;
+            var k = 0;
+            var flag_k = 0;
+            var i_fist = 0;
+            var timer_k = 0;
+            var flag_o = 0;
+            var timer_o = 0;
+            var i_roll = 0;
+            var o = 0;
+            var a=0;
+            var d = 0;
+            var Flag = 0;
+            var flag_p = 0;
+            var timer_p = 0;
+            var p = 0;
+            var flag_i = 0;
+            var flag_b = 0;
+
+            function move(ch) {
+                if (l == 1 || k == 1) {
+                    if (l == 1 && k == 1) {
+                        bg_speed = 2;
+                    }
+                    else {
+                        bg_speed = 4;
+                    }
+                }
+                else if (o == 1) {
+                    bg_speed = 12;
+                }
+                else {
+                    bg_speed = 10;
+                }
+                if (ch == "a") {
+                    box.style.backgroundPositionX = parseInt(box.style.backgroundPositionX) + bg_speed + "px";
+                    if (parseInt(me.style.left) <= 0) {
+                        me_speed = 0;
+                    }
+                    else{
+                        me_speed = 2;
+                    }
+                    me.style.left = parseInt(me.style.left) - me_speed + "px";
+                }
+                else if (ch == "d") {
+                    box.style.backgroundPositionX = parseInt(box.style.backgroundPositionX) - bg_speed + "px";
+                    if (parseInt(me.style.left) + parseInt(getStyle(me, "width")) >= parseInt(getStyle(box, "width")) - 30) {
+                        me_speed = 0;
+                    }
+                    else {
+                        me_speed = 2;
+                    }
+                    me.style.left = parseInt(me.style.left) + me_speed + "px";
+                }
+            }
+
+            function move_d() {
+                if (flag_d != 0 && Flag == 0) {
+                    me.className = "me_rightrun" + i_rightrun;
+                    i_rightrun++;
+                    if (i_rightrun > 5) {
+                        i_rightrun = 0;
+                    }
+                }
+            }
+            function move_a() {
+                if (flag_a != 0 && Flag == 0) {
+                    me.className = "me_leftrun" + i_leftrun;
+                    i_leftrun++;
+                    if (i_leftrun > 5) {
+                        i_leftrun = 0;
+                    }
+                }
+            }
+            function move_l() {
+                if (flag_l != 0) {
+                    if (right == 1) {
+                        me.className = "me_rightkick" + i_kick;
+                    }
+                    else {
+                        me.className = "me_leftkick" + i_kick;
+                    }
+                    i_kick++;
+                    if (i_kick > 3) {
+                        i_kick = 0;
+                    }
+                }
+            }
+            function move_k() {
+                if (flag_k != 0) {
+                    if (right == 1) {
+                        me.className = "me_rightfist" + i_fist;
+                    }
+                    else {
+                        me.className = "me_leftfist" + i_fist;
+                    }
+                    i_fist++;
+                    if (i_fist > 1) {
+                        i_fist = 0;
+                    }
+                }
+            }
+
+            function move_o() {
+                if (right == 1) {
+                    me.className = "me_rightroll" + i_roll;
+                    move("d");
+                    i_roll++;
+                }
+                else {
+                    me.className = "me_leftroll" + i_roll;
+                    move("a");
+                    i_roll++;
+                }
+                if (i_roll == 6) {
+                    Flag = 0;
+                    i_roll = 0;
+                    flag_o = 0;
+                    clearInterval(timer_o);
+                    o = 0;
+                    if (right == 1) {
+                        me.className = "me_rightstand";
+                    }
+                    else {
+                        me.className = "me_leftstand";
+                    }
+                }
+            }
+
+            document.onkeyup = function (event) {
+                event = event || window.event;
+                if (event.keyCode == 68) {
+                    flag_d = 0;
+                    d = 0;
+                    if (k == 0 && l == 0 && Flag == 0) {
+                        me.className = "me_rightstand";
+                    }
+                    i_rightrun = 0;
+                    clearInterval(timer_moved);
+                    clearInterval(timer_d);
+                }
+                if (event.keyCode == 65) {
+                    flag_a = 0;
+                    a = 0;
+                    if (k == 0 && l == 0 && Flag == 0) {
+                        me.className = "me_leftstand";
+                    }
+                    i_leftrun = 0;
+                    clearInterval(timer_movea);
+                    clearInterval(timer_a);
+                }
+                if (event.keyCode == 76 || event.keyCode == 74) {
+                    l = 0;
+                    flag_l = 0;
+                    clearInterval(timer_l);
+                }
+                if (event.keyCode == 75 || event.keyCode == 73) {
+                    k = 0;
+                    flag_k = 0;
+                    clearInterval(timer_k);
+                }
+            };
+
+            var boss = [];
+            var boss1_fight = [];
+            var boss_hp = [];
+            var ball = [];
+            var dir = [];
+
+            setInterval(ha, 10000);
+
+            function ha() {
+                var boss1 = document.createElement("div");
+                boss1.className = "boss1_left";
+                boss1.style.left = parseInt(Math.random() * 840 + 160) + "px";
+                box.appendChild(boss1);
+                boss.push(boss1);
+                boss_hp.push(6);
+                if (flag_b == 0) {
+                    flag_b++;
+                    setInterval(boss_move, 100);
+                }
+            }
+
+
+            function interval_fight(arr, name, time) {
+                var timer = setTimeout(function () {
+                    clearTimeout(timer);
+                    var top = arr.shift();
+                    if (top.className != "die" && top.className.indexOf("down") == -1) {
+                        top.className = name;
+                    }
+                }, time);
+            }
+            
+            function fight() {
+                var me_left = parseInt(getStyle(me, "left"));
+                var me_width = parseInt(getStyle(me, "width"));
+                for (var i = 0; i < boss.length; i++) {
+                    var boss_left = parseInt(getStyle(boss[i], "left"));
+                    var boss_width = parseInt(getStyle(boss[i], "width"));
+                    var boss_class = boss[i].className;
+                    if (((boss_left - me_left >= 0 && boss_left - me_left <= me_width - 35) || (me_left - boss_left >= 0 && me_left - boss_left <= boss_width)) && boss_class.indexOf("fight")==-1 && boss_class.indexOf("down") == -1) {
+                        boss1_fight.push(boss[i]);
+                        if (boss_class.indexOf("boss1") != -1) {
+                            if (boss_class.indexOf("left") != -1) {
+                                boss[i].className = "boss1_lfight";
+                                interval_fight(boss1_fight, "boss1_left", 4000);
+                            }
+                            else {
+                                boss[i].className = "boss1_rfight";
+                                interval_fight(boss1_fight, "boss1_right", 4000);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var boss_down = [];
+            var temp_hp = [];
+
+            function interval_down(name,time) {
+                var timer = setTimeout(function () {
+                    clearTimeout(timer);
+                    var top1 = boss_down.shift();
+                    var top2 = temp_hp.shift();
+                    if (top2 > 0) {
+                        top1.className = name;
+                    }
+                }, time);
+            }
+
+            function ball_move() {
+                var speed = 0;
+                var harm = 0;
+                for (var i = 0; i < ball.length; i++) {
+                    var flag = 0;
+                    if (ball[i].className.indexOf("ball1") != -1) {
+                        speed = 15;
+                        harm = 4;
+                    }
+                    else {
+                        speed =10;
+                        harm = 2;
+                    }
+                    if (dir[i] == 1) {
+                        ball[i].style.left = parseInt(getStyle(ball[i], "left")) + speed + "px";
+                    }
+                    else {
+                        ball[i].style.left = parseInt(getStyle(ball[i], "left")) - speed + "px";
+                    }
+                    for (var j = 0; j < boss.length; j++) {
+                        if (parseInt(getStyle(boss[j], "left")) + parseInt(getStyle(boss[j], "width")) > parseInt(getStyle(ball[i], "left")) && parseInt(getStyle(boss[j], "left")) < parseInt(getStyle(ball[i], "left")) + parseInt(getStyle(ball[i], "width")) && boss[j].className.indexOf("down") == -1 && boss[j].className.indexOf("die") == -1) {
+                            boss_down.push(boss[j]);
+                            if (boss[j].className.indexOf("r") != -1) {
+                                boss[j].className = "boss1_ldown";
+                                boss_hp[j] -= harm;
+                                interval_down("boss1_right", 3000);
+                                temp_hp.push(boss_hp[j]);
+                            }
+                            else {
+                                boss[j].className = "boss1_rdown";
+                                boss_hp[j] -= harm;
+                                interval_down("boss1_left", 3000);
+                                temp_hp.push(boss_hp[j]);
+                            }
+                            if (ball[i].className.indexOf("ball1") == -1) {
+                                ball[i].parentNode.removeChild(ball[i]);
+                                ball.splice(i, 1);
+                                dir.splice(i, 1);
+                                if (i > 0) {
+                                    i--;
+                                }
+                                flag = 1;
+                            }
+                            break;
+                        }
+                    }
+                    if (flag != 1 && (parseInt(getStyle(ball[i], "left")) >= 1000 || parseInt(getStyle(ball[i], "left")) <= -173)) {
+                        ball[i].parentNode.removeChild(ball[i]);
+                        ball.splice(i, 1);
+                        dir.splice(i, 1);
+                        if (i > 0) {
+                            i--;
+                        }
+                    }
+                }
+            }
+
+            function boss_move() {
+                var me_left = parseInt(getStyle(me, "left"));
+                var me_width = parseInt(getStyle(me, "width"));
+                for (var i = 0; i < boss.length; i++) {
+                    var boss_left = parseInt(getStyle(boss[i], "left"));
+                    var boss_width = parseInt(getStyle(boss[i], "width"));
+                    var boss_class = boss[i].className;
+                    if (boss_hp[i] <= 0) {
+                        boss[i].parentNode.removeChild(boss[i]);
+                        boss.splice(i, 1);
+                        boss_hp.splice(i, 1);
+                        if (i > 0) {
+                            i--;
+                        }
+                        continue;
+                    }
+                    if (boss_class.indexOf("fight") == -1 && boss_class.indexOf("down") == -1) {
+                        if (boss_class.indexOf("boss1") != -1) {
+                            if (boss_class.indexOf("right") != -1) {
+                                boss[i].style.left = boss_left + 3 + "px";
+                            }
+                            else {
+                                boss[i].style.left = boss_left - 3 + "px";
+                            }
+                        }
+                        if (boss_left > me_left && boss_class.indexOf("right") != -1) {
+                            if (boss_class == "boss1_right") {
+                                boss[i].className = "boss1_left";
+                            }
+                        }
+                        else if (me_left > boss_left && boss_class.indexOf("left") != -1) {
+                            if (boss_class == "boss1_left") {
+                                boss[i].className = "boss1_right";
+                            }
+                        }
+                    }
+                }
+                fight();
+            }
+
+            function k_on() {
+                flag_k++;
+                k = 1;
+                if (flag_k == 1 && Flag == 0) {
+                    if (right == 1) {
+                        me.className = "me_rightfist" + i_fist;
+                    }
+                    else {
+                        me.className = "me_leftfist" + i_fist;
+                    }
+                    i_fist++;
+                    if (i_fist > 1) {
+                        i_fist = 0;
+                    }
+                    timer_k = setInterval(move_k, 100);
+                }
+            }
+            function l_on() {
+                flag_l++;
+                l = 1;
+                var flag = 0;
+                if (flag_l == 1 && Flag == 0) {
+                    if (right == 1) {
+                        me.className = "me_rightkick" + i_kick;
+                    }
+                    else {
+                        me.className = "me_leftkick" + i_kick;
+                    }
+                    i_kick++;
+                    if (i_kick > 3) {
+                        i_kick = 0;
+                    }
+                    timer_l = setInterval(move_l, 100);
+                }
+            }
+
+            function showball(name1,name2,width){
+                    var div = document.createElement("div");
+                    if (right == 1) {
+                        div.className = name1;
+                        div.style.left = parseInt(getStyle(me, "left")) + parseInt(getStyle(me, "width")) + "px";
+                        dir.push(1);
+                    }
+                    else {
+                        div.className = name2;
+                        div.style.left = parseInt(getStyle(me, "left")) - width + "px";
+                        dir.push(-1);
+                    }
+                    ball.push(div);
+                    box.appendChild(div);
+                    if (flag_i == 0) {
+                        flag_i++;
+                        setInterval(ball_move, 10);
+                    }
+            }
+            var flag_j = 0;
+            var flag_i1 = 0;
+            document.onkeydown = function (event) {                                         //绑定键盘事件
+                event = event || window.event;
+                var str = me.className;
+               // alert(event.keyCode);
+                switch (event.keyCode) {
+                    case 65:
+                        a = 1;
+                        if (Flag == 0) {
+                            left = 1;
+                            right = 0;
+                        }
+                        flag_a++;
+                        var flag = 0;
+                        if (flag_a == 1 && Flag == 0) {
+                            me.className = "me_leftrun" + i_leftrun;
+                            i_leftrun++;
+                            if (i_leftrun > 5) {
+                                i_leftrun = 0;
+                            }
+                            timer_movea = setInterval(function () {
+                                move("a");
+                            }, 60);
+                            timer_a = setInterval(move_a, 200);
+                        }
+                        break;
+                    case 68:
+                        d = 1;
+                        if (Flag == 0) {
+                            left = 0;
+                            right = 1;
+                        }
+                        flag_d++;
+                        if (flag_d == 1 && Flag == 0) {
+                            me.className = "me_rightrun" + i_rightrun;
+                            i_rightrun++;
+                            if (i_rightrun > 5) {
+                                i_rightrun = 0;
+                            }
+                            timer_moved = setInterval(function () {
+                                move("d");
+                            }, 60);
+                            timer_d = setInterval(move_d, 200);
+                        }
+                        break;
+                    case 76:
+                        l_on();
+                        break;
+                    case 75:
+                        k_on();
+                        break;
+                    case 79:
+                        if (flag_o == 0 && Flag == 0) {
+                            Flag = 1;
+                            o = 1;
+                            flag_o++;
+                            timer_o = setInterval(move_o, 100);
+                        }
+                        break;
+                    case 80:
+                        if (flag_p == 0 && Flag == 0) {
+                            Flag = 1;
+                            flag_p++;
+                            p = 1;
+                            if (right == 1) {
+                                me.className = "me_skill0right";
+                            }
+                            else {
+                                me.className = "me_skill0left";
+                            }
+                            var timer_p = setTimeout(function () {
+                                if (right == 1) {
+                                    me.className = "me_rightstand";
+                                }
+                                else {
+                                    me.className = "me_leftstand";
+                                }
+                                Flag = 0;
+                                flag_p = 0;
+                                p = 0;
+                                clearTimeout(timer_p);
+                            }, 3500);
+                        }
+                        break;
+                    case 66:
+                        ha();
+                        break;
+                    case 73:
+                        if (Flag == 0 && flag_i1 == 0) {
+                            flag_i1++;
+                            k_on();
+                            showball("ball_right", "ball_left", 50);
+                            var timer = setTimeout(function () {
+                                flag_i1 = 0;
+                                clearTimeout(timer);
+                            }, 100);
+                        }
+                        break;
+                    case 74:
+                        if (Flag == 0 && flag_j == 0) {
+                            flag_j++;
+                            l_on();
+                            showball("ball1_right", "ball1_left", 96);
+                            var timer = setTimeout(function () {
+                                flag_j = 0;
+                                clearTimeout(timer);
+                            }, 100);
+                        }
+                        break;
+                    case 78:
+                        for (var i = 0; i < 10; i++) {
+                            ha();
+                        }
+                        break;
+                }
+            }
+        };
+    </script>
+</head>
+<body>
+    <div id="text">写着写着把自己写懵了，放弃了<br />
+    A:向左走 D:向右走 B:增加一只小怪(hp:6) N:增加十个小怪 O:滚 L:踢(无伤害) K:拳(无伤害) J:气弹1(伤害4) I:气弹2(伤害2) P:技能(无伤害)
+    第一次图片加载需要时间，人物会消失，可以多刷新几遍
+    </div>
+    <div id="box">
+        <div class="me_rightstand">
+        </div>
+    </div>
+</body>
+</html>
